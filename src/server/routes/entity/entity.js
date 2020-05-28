@@ -678,6 +678,25 @@ async function processEditionSets(
 	body: ProcessEditionSetsBody,
 	transacting: Transaction
 ) {
+	const authorCreditID = _.get(currentEntity, ['authorCredit', 'id']);
+
+	const oldAuthorCredit = await (
+		authorCreditID &&
+		orm.AuthorCredit.forge({id: authorCreditID})
+			.fetch({transacting, withRelated: ['names']})
+	);
+
+	const names = _.get(body, 'authorCredit') || [];
+	const newAuthorCreditIDPromise = orm.func.authorCredit.updateAuthorCredit(
+		orm, transacting, oldAuthorCredit,
+		names.map((name) => ({
+			authorBBID: name.authorBBID,
+			joinPhrase: name.joinPhrase,
+			name: name.name
+		}))
+	)
+		.then((credit) => credit && credit.get('id'));
+
 	const languageSetID = _.get(currentEntity, ['languageSet', 'id']);
 
 	const oldLanguageSet = await (
@@ -737,6 +756,7 @@ async function processEditionSets(
 			.then((set) => set && set.get('id'));
 
 	return Promise.props({
+		authorCreditId: newAuthorCreditIDPromise,
 		languageSetId: newLanguageSetIDPromise,
 		publisherSetId: newPublisherSetIDPromise,
 		releaseEventSetId: newReleaseEventSetIDPromise

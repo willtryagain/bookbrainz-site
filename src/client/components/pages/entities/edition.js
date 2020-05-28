@@ -105,6 +105,34 @@ function EditionDisplayPage({entity, identifierTypes}) {
 	const relationshipTypeId = 10;
 	const worksContainedByEdition = getRelationshipTargetByTypeId(entity, relationshipTypeId);
 	const urlPrefix = getEntityUrl(entity);
+
+	let authorCreditSection;
+	if (entity.authorCredit) {
+		const names = [];
+		for (const name of entity.authorCredit.names) {
+			names.push(
+				<span>
+					<a href={`/author/${name.authorBBID}`}>
+						{name.name}
+					</a>
+					{name.joinPhrase}
+				</span>
+			);
+		}
+
+		authorCreditSection = (
+			<span>
+				{names}
+			</span>
+		);
+	}
+	else if (!entity.deleted) {
+		authorCreditSection = (
+			<span className="bg-danger">
+				Author Credit unset; please edit this Edition and add one if you see this!
+			</span>);
+	}
+
 	let editionGroupSection;
 	if (entity.editionGroup) {
 		editionGroupSection = (
@@ -135,6 +163,8 @@ function EditionDisplayPage({entity, identifierTypes}) {
 				</Col>
 				<Col md={10}>
 					<EntityTitle entity={entity}/>
+					{authorCreditSection}
+					<hr/>
 					<EditionAttributes edition={entity}/>
 					{editionGroupSection}
 				</Col>

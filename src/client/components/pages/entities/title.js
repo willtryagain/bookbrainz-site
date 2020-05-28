@@ -35,7 +35,6 @@ function EntityTitle({entity}) {
 		<div>
 			<h1>{label}{disambiguation}</h1>
 			{aliases}
-			<hr/>
 		</div>
 	);
 }
