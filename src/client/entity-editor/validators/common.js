@@ -20,14 +20,15 @@
 
 import {
 	get,
+	getIn,
 	validateOptionalString,
 	validatePositiveInteger,
-	validateRequiredString
+	validateRequiredString,
+	validateUUID
 } from './base';
 
 import {Iterable} from 'immutable';
 import _ from 'lodash';
-
 
 export function validateMultiple(
 	values: any[],
@@ -172,3 +173,14 @@ export function validateSubmissionSection(
 		validateSubmissionSectionNote(get(data, 'note', null))
 	);
 }
+
+export function validateAuthorCreditRow(row: any): boolean {
+	return validateUUID(getIn(row, ['author', 'id'], null), true) &&
+	validateRequiredString(get(row, 'name', null)) &&
+	validateOptionalString(get(row, 'joinPhrase', null));
+}
+
+export const validateAuthorCreditSection = _.partial(
+	validateMultiple, _.partial.placeholder,
+	validateAuthorCreditRow, _.partial.placeholder
+);
